@@ -34,7 +34,11 @@ case class SparkBigQueryOptions(
   schema: Option[StructType] = None,
   parallelism: Option[Int] = None,
   temporaryGcsBucket: Option[String] = None,
-  intermediateFormat: FormatOptions = SparkBigQueryOptions.DefaultFormat) {
+  intermediateFormat: FormatOptions = SparkBigQueryOptions.DefaultFormat,
+  partitionField: Option[String] = None,
+  partitionExpirationMs: Option[Long] = None,
+  partitionRequireFilter: Option[Boolean] = None,
+  partitionType: Option[String] = None) {
 
   def createCredentials: Option[Credentials] =
     (credentials, credentialsFile) match {
@@ -88,8 +92,14 @@ object SparkBigQueryOptions {
           .stripMargin.replace('\n', ' '))
     }
 
+    val partitionField = getOption(parameters, "partitionField")
+    val partitionExpirationMs = getOption(parameters, "partitionExpirationMs").map(_.toLong)
+    val partitionRequireFilter = getOption(parameters, "partitionRequireFilter").map(_.toBoolean)
+    val partitionType = getOption(parameters, "partitionType")
+
     SparkBigQueryOptions(tableId, parentProject, credsParam, credsFileParam,
-      filter, schema, parallelism, temporaryGcsBucket, intermediateFormat)
+      filter, schema, parallelism, temporaryGcsBucket, intermediateFormat,
+      partitionField, partitionExpirationMs, partitionRequireFilter, partitionType)
   }
 
 
